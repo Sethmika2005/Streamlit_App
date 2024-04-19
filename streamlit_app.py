@@ -76,7 +76,7 @@ with st.sidebar:
 
     with chartRow:
     # Filter for the month
-    superSales['Order_date'] = pd.to_datetime(superSales['Order_date'])
+        superSales['Order_date'] = pd.to_datetime(superSales['Order_date'])
     mar_data = (superSales['Order_date'].dt.month == 3)
     lineQuantity = chosen_line[(mar_data)]
 
