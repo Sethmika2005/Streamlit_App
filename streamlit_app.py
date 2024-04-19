@@ -3,13 +3,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
  
-# Reading the entire workbook
-data = pd.ExcelFile("Global Superstore lite.xlsx")
+# Load the data
+superSales = pd.read_csv('Global Superstore.csv')
 
-# Reading each sheet into a DataFrame
-superSales = data.parse('Orders')
-returns_df = data.parse('Returns')
-people_df = data.parse('People')
 
 # Setting page config
 st.set_page_config(page_title="Super Store Dashboard", 
@@ -48,8 +44,8 @@ with st.sidebar:
     st.markdown("The growth of supermarkets in most populated cities are increasing and market competitions are also high. In this dashboard we'll give it a try and turn everything into a readable visualizations.")
 
     # The Selectbox
-    Product_lines = superSales['Product_line'].unique()
-    line = st.selectbox('',['Choose the Product Line'] + list(Product_lines))
+    Product_line = superSales['Product_line'].unique()
+    line = st.selectbox('',['Choose the Product Line'] + list(Product_line))
     if line == 'Choose the Product Line':
         chosen_line = superSales
     else:
