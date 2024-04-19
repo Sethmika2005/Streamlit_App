@@ -1,96 +1,33 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
- 
-# Load the data
-superSales = pd.read_csv('Global Superstore.csv')
 
+# Load the dataset
+@st.cache
+def load_data():
+    df = pd.read_csv('Global Superstore.csv')
+    return df
 
-# Setting page config
-st.set_page_config(page_title="Super Store Dashboard", 
-                   page_icon="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Map-circle-blue.svg/1024px-Map-circle-blue.svg.png",
-                   initial_sidebar_state="expanded",
-                   )
+df = load_data()
 
-# the layout Variables
-hero = st.container()
-topRow = st.container()
-midRow = st.container()
-chartRow = st.container()
-footer = st.container()
+# Sidebar widgets
+st.sidebar.title('Filters')
+product_category = st.sidebar.selectbox('Select Product Category', df['Category'].unique())
+profit_threshold = st.sidebar.slider('Select Profit Threshold', min_value=0, max_value=df['Profit'].max())
 
-# Sidebar
-with st.sidebar:
-    st.markdown(f'''
-        <style>
-        section[data-testid="stSidebar"] {{
-                width: 500px;
-                background-color: #000b1a;
-                }}
-        section[data-testid="stSidebar"] h1 {{
-                color: #e3eefc;
-                }}
-        section[data-testid="stSidebar"] p {{
-                color: #ddd;
-                text-align: left;
-                }}
-        section[data-testid="stSidebar"] svg {{
-                fill: #ddd;
-                }}
-        </style>
-    ''',unsafe_allow_html=True)
-    st.title(":anchor: About the dataset")
-    st.markdown("The growth of supermarkets in most populated cities are increasing and market competitions are also high. In this dashboard we'll give it a try and turn everything into a readable visualizations.")
+# KPIs
+total_sales = df['Sales'].sum()
+average_profit = df['Profit'].mean()
+total_orders = df['Order ID'].nunique()
 
-    # The Selectbox
-    Product_line = superSales['Product_line'].unique()
-    line = st.selectbox('',['Choose the Product Line'] + list(Product_line))
-    if line == 'Choose the Product Line':
-        chosen_line = superSales
-    else:
-        chosen_line = superSales[superSales['Product_line'] == line]
+st.write(f'Total Sales: ${total_sales:.2f}')
+st.write(f'Average Profit: ${average_profit:.2f}')
+st.write(f'Total Orders: {total_orders}')
 
-    # Customizing the select box
-    st.markdown(f'''
-    <style>
-        .stSelectbox div div {{
-                background-color: #fafafa;
-                color: #333;
-        }}
-        .stSelectbox div div:hover {{
-                cursor: pointer
-        }}
-        .stSelectbox div div .option {{
-                background-color: red;
-                color: #111;
-        }}
-        .stSelectbox div div svg {{
-                fill: black;
-        }}
-    </style>
-    ''', unsafe_allow_html=True)
+# Filter data based on sidebar selections
+filtered_data = df[(df['Category'] == product_category) & (df['Profit'] >= profit_threshold)]
 
-    with chartRow:
-    # Filter for the month
-        superSales['Order_date'] = pd.to_datetime(superSales['Order_date'])
-    mar_data = (superSales['Order_date'].dt.month == 3)
-    lineQuantity = chosen_line[(mar_data)]
-
-    # Quantity for each day
-    quantity_per_day = lineQuantity.groupby('Order_date')['Quantity'].sum().reset_index()
-
-    # some space
-    st.markdown('<div></div>', unsafe_allow_html=True)
-    
-    # Create a line chart for Quantity over the last month using Plotly
-    fig_quantity = px.line(
-        quantity_per_day, 
-        x='Order_date', 
-        y='Quantity', 
-        title='Quantity Sold over the Last Month'
-    )
-    fig_quantity.update_layout(
-        margin_r=100,
-    )
-    st.plotly_chart(fig_quantity)
+# Plot
+st.header('Sales vs. Profit')
+fig = px.scatter(filtered_data, x='Sales', y='Profit', color='Sub-Category', title='Sales vs. Profit')
+st.plotly_chart(fig)
