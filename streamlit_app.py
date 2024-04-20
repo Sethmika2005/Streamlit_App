@@ -27,7 +27,4 @@ st.write(f'Total Orders: {total_orders}')
 # Filter data based on sidebar selections
 filtered_data = df[(df['Category'] == product_category) & (df['Profit'] >= profit_threshold)]
 
-# Plot
-st.header('Sales vs. Profit')
-fig = px.scatter(filtered_data, x='Sales', y='Profit', color='Sub-Category', title='Sales vs. Profit')
-st.plotly_chart(fig)
+
